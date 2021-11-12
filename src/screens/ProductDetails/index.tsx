@@ -1,5 +1,5 @@
 import { useNavigation, useRoute } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 import { GoBackHeader } from '../../components/GoBackHeader';
 import { RootHomeNavigationProps, RootHomeRouteProps } from '../../routes/Home.routes';
@@ -27,16 +27,19 @@ import { useTheme } from 'styled-components';
 import { UIButton } from '../../components/UIButton';
 import { currency } from '../../global/language/currency';
 import { toCurrency } from '../../utils/translate';
+import { useAuth } from '../../hooks/auth';
 
 export function ProductDetails() {
   const { params } = useRoute<RootHomeRouteProps<'ProductDetails'>>()
   const navigation = useNavigation<RootHomeNavigationProps<'ProductDetails'>>()
   const theme = useTheme()
+  const { user, favorites, toggleFavorite } = useAuth()
+  const [isFavorite, setIsFavorite] = useState(favorites.includes(params.id))
 
-  // ! Colocar para alterar no usuario
-  const [favorite, setFavorite] = useState(false)
-  function toggleFavorite() {
-    setFavorite(!favorite)
+  function handleFavorite() {
+    toggleFavorite(params.id)
+
+    setIsFavorite(favorites.includes(params.id))
   }
 
   return (
@@ -63,10 +66,10 @@ export function ProductDetails() {
               <RatingTitle>{`${params.rating.rate} (${params.rating.count})`}</RatingTitle>
             </Stars>
 
-            <FavoriteButton onPress={toggleFavorite}>
+            <FavoriteButton onPress={handleFavorite}>
               <Ionicons
-                name={favorite ? 'heart-circle-outline' : 'heart-circle'}
-                color={favorite ? theme.colors.attention : theme.colors.text_details}
+                name={isFavorite ? 'heart-circle-outline' : 'heart-circle'}
+                color={isFavorite ? theme.colors.attention : theme.colors.text_details}
                 size={50}
               />
             </FavoriteButton>
@@ -76,11 +79,11 @@ export function ProductDetails() {
 
           <ButtonWrapper>
             <UIButton
-            icon="cart" 
-            title="Add to cart"
-          />
+              icon="cart"
+              title="Add to cart"
+            />
           </ButtonWrapper>
-          
+
         </Section>
 
         <Section>
